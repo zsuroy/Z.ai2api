@@ -15,7 +15,7 @@ PORT = 8080 # 对外端口
 UPSTREAM_TOKEN = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMxNmJjYjQ4LWZmMmYtNGExNS04NTNkLWYyYTI5YjY3ZmYwZiIsImVtYWlsIjoiR3Vlc3QtMTc1NTg0ODU4ODc4OEBndWVzdC5jb20ifQ.PktllDySS3trlyuFpTeIZf-7hl8Qu1qYF3BxjgIul0BrNux2nX9hVzIjthLXKMWAf9V0qM8Vm_iyDqkjPGsaiQ"
 MODEL_NAME = "GLM-4.5" # 没传入模型时选用的默认模型
 DEBUG_MODE = True # 显示调试信息
-THINK_TAGS_MODE = "pure" # 思考链处理，选项说明详见 https://github.com/hmjz100/Z.ai2api/blob/main/README.md#%E5%8A%9F%E8%83%BD
+THINK_TAGS_MODE = "think" # 思考链处理，选项说明详见 https://github.com/hmjz100/Z.ai2api/blob/main/README.md#%E5%8A%9F%E8%83%BD
 ANON_TOKEN_ENABLED = True # 是否启用访客模式（即不调用 UPSTREAM_TOKEN）
 
 BROWSER_HEADERS = {
@@ -271,3 +271,4 @@ if __name__ == "__main__":
 	log.info("代理启动: 端口=%s, 备选模型=%s，思考处理=%s, Debug=%s", PORT, MODEL_NAME, THINK_TAGS_MODE, DEBUG_MODE)
 	app.run(host="0.0.0.0", port=PORT, threaded=True)
 	# app.run(host="0.0.0.0", port=PORT, threaded=True, debug=True)
+
