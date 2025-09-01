@@ -74,7 +74,7 @@ def process_content(content: str, phase: str) -> str:
 						# 回答休止：</think> 后有内容
 						if history_phase == "thinking":
 							# 上条是思考 → 结束思考，加上回答
-							content = f"\n\n</think>{after}"
+							content = f"\n\n</think>\n\n{after.lstrip('\n')}"
 						elif history_phase == "answer":
 							# 上条是回答 → 清除所有
 							content = ""
@@ -85,7 +85,7 @@ def process_content(content: str, phase: str) -> str:
 			if phase == "thinking":
 				content = re.sub(r'\n?<summary>.*?</summary>', '', content)
 
-			content = re.sub(r"<details[^>]*>\n?", "<details type=\"reasoning\">\n\n", content)
+			content = re.sub(r"<details[^>]*>\n?", "<details type=\"reasoning\">", content)
 			content = re.sub(r"\n?</details>", "\n\n></details>", content)
 
 			if phase == "answer":
@@ -96,13 +96,13 @@ def process_content(content: str, phase: str) -> str:
 					if after.strip():
 						# 回答休止：</think> 后有内容
 						if history_phase == "thinking":
-							# 上条是思考 → 结束思考，加上回答
-							content = f"\n\n{after}"
+							# 上条是思考 → 结束思考, 去除回答开头空格，加上回答
+							content = f"\n\n{after.lstrip('\n')}"
 						elif history_phase == "answer":
 							# 上条是回答 → 清除所有
 							content = ""
 					else:
-						content = "\n\n"
+						content = ""
 			content = re.sub(r"</?details[^>]*>", "", content)
 		elif THINK_TAGS_MODE == "raw":
 			if phase == "thinking":
@@ -120,7 +120,7 @@ def process_content(content: str, phase: str) -> str:
 						# 回答休止：</think> 后有内容
 						if history_phase == "thinking":
 							# 上条是思考 → 结束思考，加上回答
-							content = f"\n\n</details>{after}"
+							content = f"\n\n</details>\n\n{after.lstrip('\n')}"
 						elif history_phase == "answer":
 							# 上条是回答 → 清除所有
 							content = ""
