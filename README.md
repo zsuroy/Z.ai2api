@@ -9,7 +9,7 @@
     - 将 `<details>` 元素替换为 `<think>` 元素，并去除 Markdown 引用块（`>`）
     - `<think>\n\n> 嗯，用户……\n\n</think>\n\n你好！`
   - "pure"
-    - 去除 <details> 标签
+    - 去除 `<details>` 标签
     - `> 嗯，用户……\n\n你好！`
   - "raw"
     - 重构为 `<details type="reasoning"><div>` 标签，显示英文思考时间
