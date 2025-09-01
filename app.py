@@ -30,8 +30,7 @@ BROWSER_HEADERS = {
 }
 
 # --- 日志 ---
-logging.basicConfig(level=logging.DEBUG if DEBUG_MODE else logging.INFO,
-					format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.DEBUG if DEBUG_MODE else logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 log = logging.getLogger(__name__)
 
 def debug(msg, *args): 
@@ -261,9 +260,7 @@ def chat():
 		return Response(stream(), mimetype="text/event-stream")
 	else:
 		content = "".join(extract_content(d) for d in parse_upstream(upstream))
-		resp = {"id":new_id("chatcmpl"),"object":"chat.completion","model":model,
-				"choices":[{"index":0,"message":{"role":"assistant","content":content},"finish_reason":"stop"}],
-				"usage":{"prompt_tokens":0,"completion_tokens":0,"total_tokens":0}}
+		resp = {"id":new_id("chatcmpl"),"object":"chat.completion","model":model,"choices":[{"index":0,"message":{"role":"assistant","content":content},"finish_reason":"stop"}],"usage":{"prompt_tokens":0,"completion_tokens":0,"total_tokens":0}}
 		return set_cors(jsonify(resp))
 
 # --- 主入口 ---
@@ -271,4 +268,3 @@ if __name__ == "__main__":
 	log.info("代理启动: 端口=%s, 备选模型=%s，思考处理=%s, Debug=%s", PORT, MODEL_NAME, THINK_TAGS_MODE, DEBUG_MODE)
 	app.run(host="0.0.0.0", port=PORT, threaded=True)
 	# app.run(host="0.0.0.0", port=PORT, threaded=True, debug=True)
-
