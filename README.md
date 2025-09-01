@@ -3,8 +3,8 @@
 基于 https://github.com/kbykb/OpenAI-Compatible-API-Proxy-for-Z 使用 AI 辅助重构。  
 
 ## 功能
-支持根据官网 /api/models 生成模型列表，并自动选择合适的模型名称。
-支持智能识别思考链，并转换为下列三种格式
+- 支持根据官网 /api/models 生成模型列表，并自动选择合适的模型名称。
+- 支持智能识别思考链，并完美转换为下列三种格式
   - "think"
     - 将 `<details>` 元素替换为 `<think>` 元素，并去除 Markdown 引用块（`>`）
     - `<think>\n\n> 嗯，用户……\n\n</think>\n\n你好！`
