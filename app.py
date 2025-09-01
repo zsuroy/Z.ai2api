@@ -15,15 +15,16 @@ UPSTREAM_TOKEN = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMxNmJjYjQ4LWZmM
 MODEL_NAME = "GLM-4.5" # 没传入模型时选用的默认模型
 DEBUG_MODE = True # 显示调试信息
 
-THINK_TAGS_MODE = "raw"
-# 思考链处理：
-# "think": 将 <details> 元素替换为 <think> 元素
-# "strip": 去除 <details> 标签
-# "raw": 保持原始，什么都不做
-# 效果示例：
-# "think": <think>嗯，用户……</think>你好！
-# "strip": 嗯，用户……\n\n你好！
-# "raw": <details><div>\n\n嗯，用户……\n\n</div><summary>Thought for 1 seconds</summary></details>\n\n你好！
+# 思考链处理
+THINK_TAGS_MODE = "pure"
+# 选项说明：
+# "think": 将 <details> 元素替换为 <think> 元素，并去除 Markdown 引用块（`>`）
+# "pure": 去除 <details> 标签
+# "raw": 重构为 <details type="reasoning"><div> 标签，显示英文思考时间
+# 输出示例：
+# "think": `<think>\n\n> 嗯，用户……\n\n</think>\n\n你好！`
+# "pure": `> 嗯，用户……\n\n你好！`
+# "raw": `<details type="reasoning"><div>\n\n嗯，用户……\n\n</div><summary>Thought for 1 seconds</summary></details>\n\n你好！`
 
 ANON_TOKEN_ENABLED = True # 是否启用访客模式（即不调用 UPSTREAM_TOKEN）
 
@@ -60,57 +61,98 @@ def set_cors(resp):
 
 def new_id(prefix="msg"): return f"{prefix}-{int(datetime.now().timestamp()*1e9)}"
 
+history_phase = "thinking"
 def process_content(content: str, phase: str) -> str:
-	debug("原始内容: %s %s", phase, repr(content))
-	content = re.sub(r"(?s)<details[^>]*?>.*?</details>", "", content)
-	content = content.replace("</thinking>", "").replace("<Full>", "").replace("</Full>", "")
-	if THINK_TAGS_MODE == "think":
-		content = re.sub(r'\n?<summary>.*?</summary>\n?', '', content)
-		content = re.sub(r"<details[^>]*>\\n?", "<think>", content)
-		content = re.sub(r"\n?</details>", "</think>", content)
-		if phase == "answer":
-			# 判断 </think> 后是否有内容
-			match = re.search(r"(?s)^(.*?</think>)(.*)$", content)
-			if match:
-				before, after = match.groups()
-				if after.strip():
-					# 回答休止：</think> 后有内容 → 清除所有
-					content = ""
-				else:
-					# 思考休止：</think> 后没有内容 → 保留一个 </think>
-					content = "</think>"
-	elif THINK_TAGS_MODE == "strip":
-		content = re.sub(r'\n?<summary>.*?</summary>\n?', '', content)
-		content = re.sub(r"</?details[^>]*>", "", content)
-	elif THINK_TAGS_MODE == "raw":
-		if phase == "thinking":
-			content = re.sub(r'\n?<summary>.*?</summary>', '', content)
+	global history_phase
+	history_content = content
+	if content and (phase == "thinking" or "summary>" in content):
+		content = re.sub(r"(?s)<details[^>]*?>.*?</details>", "", content)
+		content = content.replace("</thinking>", "").replace("<Full>", "").replace("</Full>", "")
+		if THINK_TAGS_MODE == "think":
+			if phase == "thinking":
+				content = content.lstrip("> ").replace("\n>", "\n").strip()
 
-		content = re.sub(r"<details[^>]*>\n?", "<details type=\"reasoning\" open><div>\n\n", content)
-		content = re.sub(r"\n?</details>", "\n\n</div></details>", content)
-
-		if phase == "answer":
-			# 判断 </details> 后是否有内容
-			match = re.search(r"(?s)^(.*?</details>)(.*)$", content)
-			if match:
-				before, after = match.groups()
-				if after.strip():
-					# 回答休止: </details> 后有内容 → 清空
-					content = ""
-				else:
-					# 思考休止: </details> 后没有内容 → 加入 summary + </details>
-					summary_match = re.search(r"(?s)<summary>.*?</summary>", before)
-					duration_match = re.search(r'duration="(\d+)"', before)
-
-					if summary_match:
-						content = f"\n\n</div>{summary_match.group()}</details>\n\n"
-					elif duration_match:
-						duration = duration_match.group(1)
-						content = f'\n\n</div><summary>Thought for {duration} seconds</summary></details>\n\n'
+			content = re.sub(r'\n?<summary>.*?</summary>\n?', '', content)
+			content = re.sub(r"<details[^>]*>\n?", "<think>\n\n", content)
+			content = re.sub(r"\n?</details>", "\n\n</think>", content)
+			if phase == "answer":
+				# 判断 </think> 后是否有内容
+				match = re.search(r"(?s)^(.*?</think>)(.*)$", content)
+				if match:
+					before, after = match.groups()
+					if after.strip():
+						# 回答休止：</think> 后有内容
+						if history_phase == "thinking":
+							# 上条是思考 → 结束思考，加上回答
+							content = f"\n\n</think>{after}"
+						elif history_phase == "answer":
+							# 上条是回答 → 清除所有
+							content = ""
 					else:
-						content = "\n\n</div></details>"
+						# 思考休止：</think> 后没有内容 → 保留一个 </think>
+						content = "\n\n</think>"
+		elif THINK_TAGS_MODE == "pure":
+			if phase == "thinking":
+				content = re.sub(r'\n?<summary>.*?</summary>', '', content)
 
-	debug("返回内容: %s %s", phase, repr(content))
+			content = re.sub(r"<details[^>]*>\n?", "<details type=\"reasoning\">\n\n", content)
+			content = re.sub(r"\n?</details>", "\n\n></details>", content)
+
+			if phase == "answer":
+				# 判断 </details> 后是否有内容
+				match = re.search(r"(?s)^(.*?</details>)(.*)$", content)
+				if match:
+					before, after = match.groups()
+					if after.strip():
+						# 回答休止：</think> 后有内容
+						if history_phase == "thinking":
+							# 上条是思考 → 结束思考，加上回答
+							content = f"\n\n{after}"
+						elif history_phase == "answer":
+							# 上条是回答 → 清除所有
+							content = ""
+					else:
+						content = "\n\n"
+			content = re.sub(r"</?details[^>]*>", "", content)
+		elif THINK_TAGS_MODE == "raw":
+			if phase == "thinking":
+				content = re.sub(r'\n?<summary>.*?</summary>', '', content)
+
+			content = re.sub(r"<details[^>]*>\n?", "<details type=\"reasoning\" open><div>\n\n", content)
+			content = re.sub(r"\n?</details>", "\n\n</div></details>", content)
+
+			if phase == "answer":
+				# 判断 </details> 后是否有内容
+				match = re.search(r"(?s)^(.*?</details>)(.*)$", content)
+				if match:
+					before, after = match.groups()
+					if after.strip():
+						# 回答休止：</think> 后有内容
+						if history_phase == "thinking":
+							# 上条是思考 → 结束思考，加上回答
+							content = f"\n\n</details>{after}"
+						elif history_phase == "answer":
+							# 上条是回答 → 清除所有
+							content = ""
+					else:
+						# 思考休止: </details> 后没有内容 → 加入 summary + </details>
+						summary_match = re.search(r"(?s)<summary>.*?</summary>", before)
+						duration_match = re.search(r'duration="(\d+)"', before)
+
+						if summary_match:
+							content = f"\n\n</div>{summary_match.group()}</details>\n\n"
+						elif duration_match:
+							duration = duration_match.group(1)
+							content = f'\n\n</div><summary>Thought for {duration} seconds</summary></details>\n\n'
+						else:
+							content = "\n\n</div></details>"
+
+	if repr(content) != repr(history_content):
+		debug("R 内容: %s %s", phase, repr(history_content))
+		debug("W 内容: %s %s", phase, repr(content))
+	else:
+		debug("R 内容: %s %s", phase, repr(history_content))
+	history_phase = phase
 	return content
 	
 
@@ -142,8 +184,8 @@ def parse_upstream(upstream):
 def extract_content(data):
 	phase, delta, edit = data.get("data", {}).get("phase"), data.get("data", {}).get("delta_content",""), data.get("data",{}).get("edit_content","")
 	content = delta or edit
-	if content and ("<details" in content or "</details" in content or phase=="thinking"):
-		return process_content(content, phase)
+	if content and (phase == "answer" or phase == "thinking"):
+		return process_content(content, phase) or ""
 	return content or ""
 
 # --- 路由 ---
