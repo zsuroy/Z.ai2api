@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Z.ai GLM-4.5 OpenAI API Proxy
 将 Z.ai 代理为 OpenAI Compatible 格式，基于 https://github.com/kbykb/OpenAI-Compatible-API-Proxy-for-Z 使用 AI 辅助重构。
@@ -60,15 +60,33 @@ def set_cors(resp):
 
 def new_id(prefix="msg"): return f"{prefix}-{int(datetime.now().timestamp()*1e9)}"
 
-def process_thought(content: str) -> str:
+def process_thought(content: str, phase: str) -> str:
+	debug("原始思考内容 (repr): %s %s", phase, repr(content))
+
+	content = re.sub(r"(?s)<details[^>]*?>.*?</details>", "", content)
 	content = re.sub(r"(?s)<summary>.*?</summary>", "", content)
 	content = content.replace("</thinking>", "").replace("<Full>", "").replace("</Full>", "")
 	if THINK_TAGS_MODE == "think":
 		content = re.sub(r"<details[^>]*>", "<think>", content)
 		content = re.sub(r"</details>", "</think>", content)
+		if phase == "answer":
+			# 判断 </think> 后是否有内容
+			match = re.search(r"(?s)^(.*?</think>)(.*)$", content)
+			if match:
+				before, after = match.groups()
+				if after.strip():
+					# 回答休止：</think> 后有内容，清除所有
+					content = ""
+				else:
+					# 思考休止：</think> 后没有内容，保留一个 </think>
+					content = "</think>"
 	elif THINK_TAGS_MODE == "strip":
 		content = re.sub(r"</?details[^>]*>", "", content)
-	return content.lstrip("> ").replace("\n> ", "\n").strip()
+	
+	content = content.lstrip("> ").replace("\n> ", "\n").strip()
+	debug("处理后的思考内容 (repr): %s %s", phase, repr(content))
+	return content
+	
 
 def get_token() -> str:
 	if not ANON_TOKEN_ENABLED: return UPSTREAM_TOKEN
@@ -99,7 +117,7 @@ def extract_content(data):
 	phase, delta, edit = data.get("data", {}).get("phase"), data.get("data", {}).get("delta_content",""), data.get("data",{}).get("edit_content","")
 	content = delta or edit
 	if content and ("<details" in content or "</details" in content or phase=="thinking"):
-		return process_thought(content)
+		return process_thought(content, phase)
 	return content or ""
 
 # --- 路由 ---
@@ -193,4 +211,4 @@ def chat():
 # --- 主入口 ---
 if __name__ == "__main__":
 	log.info("代理启动: 端口=%s, 备选模型=%s，思考处理=%s, Debug=%s", PORT, MODEL_NAME, THINK_TAGS_MODE, DEBUG_MODE)
-	app.run(host="0.0.0.0", port=PORT, threaded=True)
+	app.run(host="0.0.0.0", port=PORT, threaded=True, debug=True)
