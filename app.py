@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Z.ai GLM-4.5 OpenAI API Proxy
-将 Z.ai 代理为 OpenAI Compatible 格式，基于 https://github.com/kbykb/OpenAI-Compatible-API-Proxy-for-Z 使用 AI 辅助重构。
+Z.ai 2 API
+将 Z.ai 代理为 OpenAI Compatible 格式，支持免 Cookie、智能处理思考链等功能
+基于 https://github.com/kbykb/OpenAI-Compatible-API-Proxy-for-Z 使用 AI 辅助重构。
 """
 
 import json, re, requests, logging
@@ -14,18 +15,7 @@ PORT = 8080 # 对外端口
 UPSTREAM_TOKEN = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMxNmJjYjQ4LWZmMmYtNGExNS04NTNkLWYyYTI5YjY3ZmYwZiIsImVtYWlsIjoiR3Vlc3QtMTc1NTg0ODU4ODc4OEBndWVzdC5jb20ifQ.PktllDySS3trlyuFpTeIZf-7hl8Qu1qYF3BxjgIul0BrNux2nX9hVzIjthLXKMWAf9V0qM8Vm_iyDqkjPGsaiQ"
 MODEL_NAME = "GLM-4.5" # 没传入模型时选用的默认模型
 DEBUG_MODE = True # 显示调试信息
-
-# 思考链处理
-THINK_TAGS_MODE = "pure"
-# 选项说明：
-# "think": 将 <details> 元素替换为 <think> 元素，并去除 Markdown 引用块（`>`）
-# "pure": 去除 <details> 标签
-# "raw": 重构为 <details type="reasoning"><div> 标签，显示英文思考时间
-# 输出示例：
-# "think": `<think>\n\n> 嗯，用户……\n\n</think>\n\n你好！`
-# "pure": `> 嗯，用户……\n\n你好！`
-# "raw": `<details type="reasoning"><div>\n\n嗯，用户……\n\n</div><summary>Thought for 1 seconds</summary></details>\n\n你好！`
-
+THINK_TAGS_MODE = "pure" # 思考链处理，选项说明详见 https://github.com/hmjz100/Z.ai2api/blob/main/README.md#%E5%8A%9F%E8%83%BD
 ANON_TOKEN_ENABLED = True # 是否启用访客模式（即不调用 UPSTREAM_TOKEN）
 
 BROWSER_HEADERS = {
@@ -279,4 +269,5 @@ def chat():
 # --- 主入口 ---
 if __name__ == "__main__":
 	log.info("代理启动: 端口=%s, 备选模型=%s，思考处理=%s, Debug=%s", PORT, MODEL_NAME, THINK_TAGS_MODE, DEBUG_MODE)
-	app.run(host="0.0.0.0", port=PORT, threaded=True, debug=True)
+	app.run(host="0.0.0.0", port=PORT, threaded=True)
+	# app.run(host="0.0.0.0", port=PORT, threaded=True, debug=True)
