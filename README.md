@@ -12,7 +12,7 @@
     - 去除 `<details>` 标签
     - `> 嗯，用户……\n\n你好！`
   - "raw"
-    - 重构为 `<details type="reasoning"><div>` 标签，显示英文思考时间
+    - 重构为 `<details><div>` 标签，显示英文思考时间
     - `<details type="reasoning" open><div>\n\n嗯，用户……\n\n</div><summary>Thought for 1 seconds</summary></details>\n\n你好！`
 ## 使用
 ```
