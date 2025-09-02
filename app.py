@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 """
 Z.ai 2 API
-将 Z.ai 代理为 OpenAI Compatible 格式，支持免 Cookie、智能处理思考链、图片上传（仅登录后）、函数调用等功能
+将 Z.ai 代理为 OpenAI Compatible 格式，支持免令牌、智能处理思考链、图片上传（仅登录后）等功能
 基于 https://github.com/kbykb/OpenAI-Compatible-API-Proxy-for-Z 使用 AI 辅助重构。
 """
 
