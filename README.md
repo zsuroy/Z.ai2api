@@ -1,8 +1,13 @@
 # Z.ai2api
-将 Z.ai 代理为 OpenAI Compatible 格式，支持免 Cookie、智能处理思考链等功能  
+将 Z.ai 代理为 OpenAI Compatible 格式，支持智能处理思考链、图片上传（仅登录后）等功能
 基于 https://github.com/kbykb/OpenAI-Compatible-API-Proxy-for-Z 使用 AI 辅助重构。
 
-## 限制
+## 功能
+- 支持根据官网 /api/models 生成模型列表，并自动选择合适的模型名称。
+- （登录后）支持上传图片，使用 GLM 识图系列模型。
+- 支持智能识别思考链，完美转换多种格式。
+
+## 要求
 Python 3.12+
 
 ## 环境
@@ -39,10 +44,6 @@ Python 3.12+
   - 显示调试信息，启用后将显示一些调试信息
   - 默认值：`false`
 
-## 功能
-- 支持根据官网 /api/models 生成模型列表，并自动选择合适的模型名称。
-- （登录后）支持上传图片，使用 GLM 识图系列模型。
-- 支持智能识别思考链，完美转换多种格式。
 ## 使用
 ```
 git clone https://github.com/hmjz100/Z.ai2api.git
