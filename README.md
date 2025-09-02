@@ -12,23 +12,23 @@ Python 3.12+
 
 ## 环境
 使用 `.env` 文件进行配置。
-- `BASE`
+### `BASE`
   - 上游 API 基础域名
   - 默认值：`https://chat.z.ai`
-- `PORT`
+### `PORT`
   - 服务端口
   - 默认值：`8080`
-- `MODEL`
+### `MODEL`
   - 备选模型，在未传入模型时调用
   - 默认值：`GLM-4.5`
-- `TOKEN`
+### `TOKEN`
   - 访问令牌
   - 如果启用了 `ANONYMOUS_MODE` 可不填
-- `ANONYMOUS_MODE`
+### `ANONYMOUS_MODE`
   - 访客模式，启用后将获取随机令牌
   - 访客模式下不支持上传文件调用视觉模型
   - 默认值：`true`
-- `THINK_TAGS_MODE`
+### `THINK_TAGS_MODE`
   - 思考链格式化模式
   - 可选 `reasoning` `think` `strip` `details`，效果如下
     - "reasoning"
@@ -40,7 +40,7 @@ Python 3.12+
       - content: `> 嗯，用户……\n\n你好！`
     - "details"
       - content: `<details type="reasoning" open><div>\n\n嗯，用户……\n\n</div><summary>Thought for 1 seconds</summary></details>\n\n你好！`
-- `DEBUG_MODE`
+### `DEBUG_MODE`
   - 显示调试信息，启用后将显示一些调试信息
   - 默认值：`false`
 
