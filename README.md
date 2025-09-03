@@ -8,7 +8,8 @@
 - 支持智能识别思考链，完美转换多种格式。
 
 ## 要求
-Python 3.12+
+![Python 3.12+](https://img.shields.io/badge/3.12%2B-blue?style=for-the-badge&logo=python&label=python)
+![.env](https://img.shields.io/badge/.env-%23555?style=for-the-badge&logo=.env)
 
 ## 环境
 使用 `.env` 文件进行配置。
