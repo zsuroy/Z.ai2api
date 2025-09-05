@@ -1,5 +1,5 @@
 <div align=center>
-<img width="100" src="https://wsrv.nl/?url=https%3a%2f%2fz-cdn.chatglm.cn%2fz-ai%2fstatic%2flogo.svg&w=100&output=webp" />
+<img width="100" src="https://wsrv.nl/?url=https%3a%2f%2fz-cdn.chatglm.cn%2fz-ai%2fstatic%2flogo.svg&w=1000&output=webp" />
 <h1>Z.ai2api</h1>
 <p>将 Z.ai 代理为 OpenAI Compatible 格式，支持免令牌、智能处理思考链、图片上传（登录后）等功能</p>
 <p>基于 https://github.com/kbykb/OpenAI-Compatible-API-Proxy-for-Z 使用 AI 辅助重构</p>
@@ -30,10 +30,11 @@
   - 如果启用了 `ANONYMOUS_MODE` 可不填
 ### `ANONYMOUS_MODE`
   - 访客模式，启用后将获取随机令牌
-  - 访客模式下不支持上传文件调用视觉模型
   - 默认值：`true`
+  - 访客模式下不支持上传文件调用视觉模型
 ### `THINK_TAGS_MODE`
   - 思考链格式化模式
+  - 默认值：`reasoning`
   - 可选 `reasoning` `think` `strip` `details`，效果如下
     - "reasoning"
       - reasoning_content: `嗯，用户……`
