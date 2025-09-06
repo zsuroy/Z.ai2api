@@ -1,3 +1,4 @@
-requests
+﻿requests
 flask
 load_dotenv
+tiktoken
