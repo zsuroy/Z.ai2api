@@ -327,7 +327,6 @@ def OpenAI_Compatible():
 						completion_str += delta["content"]
 					if "reasoning_content" in delta:
 						completion_str += delta["reasoning_content"]
-					completion_tokens = utils.response.count(completion_str) # 计算 tokens
 				if is_done:
 					yield f"data: {json.dumps({
 						'id': utils.request.id('chatcmpl'),
@@ -346,6 +345,7 @@ def OpenAI_Compatible():
 					break
 
 			if include_usage:
+				completion_tokens = utils.response.count(completion_str)  # 计算 tokens
 				# 发送 usage 统计信息
 				yield f"data: {json.dumps({
 					"id": utils.request.id('chatcmpl'),
