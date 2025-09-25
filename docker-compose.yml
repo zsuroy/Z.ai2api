@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  zai2api:
+    image: zsuroy/zai2api:latest
+    container_name: zai2api
+    ports:
+      - "8080:8080"
+    environment:
+      - BASE=https://chat.z.ai
+      - PORT=8080
+      - MODEL=GLM-4.5
+      - TOKEN=
+      - ANONYMOUS_MODE=true
+      - THINK_TAGS_MODE=reasoning
+      - DEBUG=false
+      - ADMIN_PASSWORD=admin123
+    volumes:
+      - .env:/app/.env
+    restart: unless-stopped

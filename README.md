@@ -51,8 +51,68 @@
 
 ## 使用
 ```
-git clone https://github.com/hmjz100/Z.ai2api.git
+git clone https://github.com/zsuroy/Z.ai2api.git
 cd Z.ai2api
 pip install -r requirements.txt
 python app.py
+```
+
+## Docker 部署
+
+### 构建镜像
+```bash
+docker build -t zai2api .
+```
+
+### 运行容器
+```bash
+docker run -d \
+  --name zai2api \
+  -p 8080:8080 \
+  -e BASE=https://chat.z.ai \
+  -e PORT=8080 \
+  -e MODEL=GLM-4.5 \
+  -e TOKEN=your_token_here \
+  -e ANONYMOUS_MODE=true \
+  -e THINK_TAGS_MODE=reasoning \
+  -e DEBUG=false \
+  zai2api
+```
+
+### 环境变量说明
+所有环境变量与本地部署相同：
+- `BASE`: 上游 API 基础域名
+- `PORT`: 服务端口
+- `MODEL`: 备选模型
+- `TOKEN`: 访问令牌
+- `ANONYMOUS_MODE`: 访客模式
+- `THINK_TAGS_MODE`: 思考链格式化模式
+- `DEBUG`: 调试模式
+
+### 使用 Docker Compose (可选)
+
+1. 开发构建镜像(可选)
+创建 `docker-compose.yml` 文件：
+```yaml
+version: '3.8'
+services:
+  zai2api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - BASE=https://chat.z.ai
+      - PORT=8080
+      - MODEL=GLM-4.5
+      - TOKEN=
+      - ANONYMOUS_MODE=true
+      - THINK_TAGS_MODE=reasoning
+      - DEBUG=false
+    volumes:
+      - .env:/app/.env
+```
+
+2. 直接在项目目录下运行
+```bash
+docker-compose up -d
 ```
